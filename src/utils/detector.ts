@@ -7,6 +7,10 @@ import { CubemapFormat, type CubemapInfo } from '../types/cubemap';
  * @returns The detected cubemap format and face size, or null if not recognized.
  */
 export function detectCubemapFormat(width: number, height: number): CubemapInfo | null {
+  if (width <= 0 || height <= 0) {
+    return null;
+  }
+
   // Horizontal Cross (4×3)
   if (width % 4 === 0 && height % 3 === 0) {
     const faceSize = width / 4;
