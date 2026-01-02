@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import FileUpload from './components/FileUpload.vue';
 import CubemapPreview from './components/CubemapPreview.vue';
 import { detectCubemapFormat } from './utils/detector';
-import { convertToAllFormats } from './utils/converter';
+import { convertToAllFormats, extractFaces } from './utils/converter';
 import { type ConvertedCubemap, type CubemapInfo, FORMAT_LABELS } from './types/cubemap';
 import { loadImage } from './utils/image';
 
@@ -12,6 +12,7 @@ const error = ref<string | null>(null);
 const detectedInfo = ref<CubemapInfo | null>(null);
 const convertedCubemaps = ref<ConvertedCubemap[]>([]);
 const sourceImageUrl = ref<string | null>(null);
+const extractedFaces = ref<Record<string, string> | null>(null);
 
 async function handleFileSelected(file: File) {
   isProcessing.value = true;
@@ -19,6 +20,7 @@ async function handleFileSelected(file: File) {
   detectedInfo.value = null;
   convertedCubemaps.value = [];
   sourceImageUrl.value = URL.createObjectURL(file);
+  extractedFaces.value = null;
 
   try {
     // Load the image
@@ -34,8 +36,29 @@ async function handleFileSelected(file: File) {
 
     detectedInfo.value = info;
 
+    // Extract faces
+    const faces = extractFaces(image, info);
+
+    if (faces === null) {
+      error.value = 'Error extracting faces from the cubemap.';
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      canvas.width = info.faceSize;
+      canvas.height = info.faceSize;
+      const faceUrls: Record<string, string> = {};
+      for (const [faceName, faceData] of Object.entries(faces)) {
+        ctx.putImageData(faceData, 0, 0);
+        faceUrls[faceName] = canvas.toDataURL('image/png');
+      }
+      extractedFaces.value = faceUrls;
+    }
+
     // Convert to all other formats
-    const converted = convertToAllFormats(image, info);
+    const converted = convertToAllFormats(faces, info);
     convertedCubemaps.value = converted;
 
     if (converted.length === 0) {
@@ -50,7 +73,7 @@ async function handleFileSelected(file: File) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 p-8 md:p-4">
+  <div class="min-h-screen bg-linear-to-br from-indigo-500 to-purple-600 p-8 md:p-4">
     <header class="text-center text-white mb-12">
       <h1 class="text-4xl md:text-5xl font-bold mb-2 drop-shadow-lg">
         🗺️ Cubemap Format Converter
@@ -71,7 +94,7 @@ async function handleFileSelected(file: File) {
       </div>
 
       <div v-if="error" class="mt-8 bg-red-100 text-red-800 p-6 rounded-xl flex items-center gap-4">
-        <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -90,6 +113,18 @@ async function handleFileSelected(file: File) {
             alt="Source cubemap"
             class="max-w-full max-h-96 h-auto block rounded-lg"
           />
+        </div>
+      </div>
+
+      <div v-if="extractedFaces" class="mt-8">
+        <h2 class="text-white text-center text-2xl mb-4 drop-shadow-lg">Extracted Faces</h2>
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-6 gap-4">
+            <div v-for="(url, faceName) in extractedFaces" :key="faceName" class="text-center">
+              <img :src="url" :alt="faceName" class="w-full h-auto block rounded-lg mb-2" />
+              <span class="text-sm font-medium text-gray-700 capitalize">{{ faceName }}</span>
+            </div>
+          </div>
         </div>
       </div>
 

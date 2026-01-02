@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+@theme {
+  --breakpoint-xs: 30rem;
+}
+
 body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }

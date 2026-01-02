@@ -201,17 +201,11 @@ export function convertToFormat(
 
 /**
  * Convert a source image to all available cubemap formats.
- * @param image - The source image containing the cubemap.
+ * @param faces - The six faces of the cubemap.
  * @param sourceInfo - Information about the source cubemap format.
  * @returns An array of converted cubemaps in different formats.
  */
-export function convertToAllFormats(
-  image: HTMLImageElement,
-  sourceInfo: CubemapInfo,
-): ConvertedCubemap[] {
-  const faces = extractFaces(image, sourceInfo);
-  if (!faces) return [];
-
+export function convertToAllFormats(faces: CubeFaces, sourceInfo: CubemapInfo): ConvertedCubemap[] {
   const allFormats = Object.values(CubemapFormat);
   const results: ConvertedCubemap[] = [];
 
