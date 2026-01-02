@@ -46,6 +46,8 @@ function getFacePositions(
   format: CubemapFormat,
   faceSize: number,
 ): Record<keyof CubeFaces, { x: number; y: number }> {
+  // Left = -X, right = +X
+
   switch (format) {
     case CubemapFormat.HORIZONTAL_CROSS:
       // Layout:
@@ -78,12 +80,12 @@ function getFacePositions(
 
     case CubemapFormat.COLUMN_2X3:
       // Layout:
-      // [left][right]
+      // [right][left]
       // [top][bottom]
       // [front][back]
       return {
-        left: { x: 0, y: 0 },
-        right: { x: faceSize, y: 0 },
+        right: { x: 0, y: 0 },
+        left: { x: faceSize, y: 0 },
         top: { x: 0, y: faceSize },
         bottom: { x: faceSize, y: faceSize },
         front: { x: 0, y: faceSize * 2 },
@@ -92,43 +94,43 @@ function getFacePositions(
 
     case CubemapFormat.ROW_3X2:
       // Layout:
-      // [front][back][left]
-      // [right][top][bottom]
+      // [right][left][top]
+      // [bottom][front][back]
       return {
-        front: { x: 0, y: 0 },
-        back: { x: faceSize, y: 0 },
-        left: { x: faceSize * 2, y: 0 },
-        right: { x: 0, y: faceSize },
-        top: { x: faceSize, y: faceSize },
-        bottom: { x: faceSize * 2, y: faceSize },
+        right: { x: 0, y: 0 },
+        left: { x: faceSize, y: 0 },
+        top: { x: faceSize * 2, y: 0 },
+        bottom: { x: 0, y: faceSize },
+        front: { x: faceSize, y: faceSize },
+        back: { x: faceSize * 2, y: faceSize },
       };
 
     case CubemapFormat.ROW_6X1:
-      // Layout: [front][back][left][right][top][bottom]
+      // Layout: [right][left][top][bottom][front][back]
       return {
-        front: { x: 0, y: 0 },
-        back: { x: faceSize, y: 0 },
-        left: { x: faceSize * 2, y: 0 },
-        right: { x: faceSize * 3, y: 0 },
-        top: { x: faceSize * 4, y: 0 },
-        bottom: { x: faceSize * 5, y: 0 },
+        right: { x: 0, y: 0 },
+        left: { x: faceSize, y: 0 },
+        top: { x: faceSize * 2, y: 0 },
+        bottom: { x: faceSize * 3, y: 0 },
+        front: { x: faceSize * 4, y: 0 },
+        back: { x: faceSize * 5, y: 0 },
       };
 
     case CubemapFormat.COLUMN_1X6:
       // Layout:
-      // [front]
-      // [back]
-      // [left]
       // [right]
+      // [left]
       // [top]
       // [bottom]
+      // [front]
+      // [back]
       return {
-        front: { x: 0, y: 0 },
-        back: { x: 0, y: faceSize },
-        left: { x: 0, y: faceSize * 2 },
-        right: { x: 0, y: faceSize * 3 },
-        top: { x: 0, y: faceSize * 4 },
-        bottom: { x: 0, y: faceSize * 5 },
+        right: { x: 0, y: 0 },
+        left: { x: 0, y: faceSize },
+        top: { x: 0, y: faceSize * 2 },
+        bottom: { x: 0, y: faceSize * 3 },
+        front: { x: 0, y: faceSize * 4 },
+        back: { x: 0, y: faceSize * 5 },
       };
   }
 }
