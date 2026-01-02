@@ -50,23 +50,22 @@ function openFileDialog() {
 
 <template>
   <div
-    class="file-upload"
-    :class="{ dragging: isDragging }"
+    class="border-2 border-dashed border-gray-300 rounded-xl p-12 md:p-8 text-center cursor-pointer transition-all duration-300 bg-gray-50 hover:border-indigo-500 hover:bg-indigo-50"
+    :class="{ 'border-indigo-500 bg-indigo-100 scale-105': isDragging }"
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
     @drop="handleDrop"
     @click="openFileDialog"
   >
-    <input
-      ref="fileInput"
-      type="file"
-      accept="image/*"
-      style="display: none"
-      @change="handleFileInput"
-    />
+    <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileInput" />
 
-    <div class="upload-content">
-      <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <div class="pointer-events-none">
+      <svg
+        class="w-16 h-16 mx-auto mb-4 text-indigo-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+      >
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -74,60 +73,11 @@ function openFileDialog() {
           d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
         />
       </svg>
-      <p class="upload-text">
-        <span class="highlight">Click to choose</span> or drag and drop a cubemap
+      <p class="text-lg text-gray-800 mb-2">
+        <span class="text-indigo-500 font-semibold">Click to choose</span> or drag and drop a
+        cubemap
       </p>
-      <p class="upload-hint">PNG, JPG, WebP supported</p>
+      <p class="text-sm text-gray-600">PNG, JPG, WebP supported</p>
     </div>
   </div>
 </template>
-
-<style scoped>
-.file-upload {
-  border: 2px dashed #cbd5e0;
-  border-radius: 12px;
-  padding: 3rem 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: #f7fafc;
-}
-
-.file-upload:hover {
-  border-color: #667eea;
-  background: #eef2ff;
-}
-
-.file-upload.dragging {
-  border-color: #667eea;
-  background: #e0e7ff;
-  transform: scale(1.02);
-}
-
-.upload-content {
-  pointer-events: none;
-}
-
-.upload-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 1rem;
-  color: #667eea;
-}
-
-.upload-text {
-  font-size: 1.125rem;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
-}
-
-.highlight {
-  color: #667eea;
-  font-weight: 600;
-}
-
-.upload-hint {
-  font-size: 0.875rem;
-  color: #718096;
-}
-</style>

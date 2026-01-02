@@ -18,18 +18,31 @@ function downloadImage(dataUrl: string, format: string) {
 </script>
 
 <template>
-  <div class="cubemap-preview">
-    <div class="preview-header">
-      <h3 class="format-title">{{ FORMAT_LABELS[cubemap.format] }}</h3>
-      <span class="dimensions">{{ cubemap.width }}x{{ cubemap.height }}</span>
+  <div
+    class="bg-white rounded-xl p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-800">
+        {{ FORMAT_LABELS[cubemap.format] }}
+      </h3>
+      <span class="text-sm text-gray-800 bg-gray-100 px-3 py-1 rounded-md">
+        {{ cubemap.width }}x{{ cubemap.height }}
+      </span>
     </div>
 
-    <div class="preview-image-container">
-      <img :src="cubemap.dataUrl" :alt="FORMAT_LABELS[cubemap.format]" class="preview-image" />
+    <div class="w-full bg-gray-50 rounded-lg overflow-hidden mb-4 flex justify-center">
+      <img
+        :src="cubemap.dataUrl"
+        :alt="FORMAT_LABELS[cubemap.format]"
+        class="max-w-full max-h-96 h-auto block"
+      />
     </div>
 
-    <button class="download-button" @click="downloadImage(cubemap.dataUrl, cubemap.format)">
-      <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <button
+      class="w-full px-4 py-3 bg-indigo-500 text-white border-0 rounded-lg text-base font-medium cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 hover:bg-indigo-600 active:scale-95"
+      @click="downloadImage(cubemap.dataUrl, cubemap.format)"
+    >
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -41,86 +54,3 @@ function downloadImage(dataUrl: string, format: string) {
     </button>
   </div>
 </template>
-
-<style scoped>
-.cubemap-preview {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.cubemap-preview:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.preview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.format-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #2d3748;
-  margin: 0;
-}
-
-.dimensions {
-  font-size: 0.875rem;
-  color: #2d3748;
-  background: #edf2f7;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-}
-
-.preview-image-container {
-  width: 100%;
-  background: #f7fafc;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-
-.preview-image {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.download-button {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: #667eea;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: background 0.2s ease;
-}
-
-.download-button:hover {
-  background: #5568d3;
-}
-
-.download-button:active {
-  transform: scale(0.98);
-}
-
-.download-icon {
-  width: 20px;
-  height: 20px;
-}
-</style>

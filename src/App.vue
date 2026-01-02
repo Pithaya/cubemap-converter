@@ -50,24 +50,28 @@ async function handleFileSelected(file: File) {
 </script>
 
 <template>
-  <div class="app">
-    <header class="header">
-      <h1 class="title">🗺️ Cubemap Format Converter</h1>
-      <p class="subtitle">
+  <div class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 p-8 md:p-4">
+    <header class="text-center text-white mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold mb-2 drop-shadow-lg">
+        🗺️ Cubemap Format Converter
+      </h1>
+      <p class="text-lg opacity-90">
         Convert your cubemaps between different formats (Cross, Grid, Row, Column)
       </p>
     </header>
 
-    <main class="main">
+    <main class="max-w-7xl mx-auto">
       <FileUpload @file-selected="handleFileSelected" />
 
-      <div v-if="isProcessing" class="loading">
-        <div class="spinner"></div>
+      <div v-if="isProcessing" class="mt-8 text-center p-12 bg-white rounded-xl">
+        <div
+          class="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full mx-auto mb-4 animate-spin"
+        ></div>
         <p>Processing...</p>
       </div>
 
-      <div v-if="error" class="error">
-        <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <div v-if="error" class="mt-8 bg-red-100 text-red-800 p-6 rounded-xl flex items-center gap-4">
+        <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -78,27 +82,31 @@ async function handleFileSelected(file: File) {
         <p>{{ error }}</p>
       </div>
 
-      <div v-if="sourceImageUrl" class="source-image">
-        <h2 class="source-title">Uploaded image</h2>
-        <div class="source-container">
-          <img :src="sourceImageUrl" alt="Source cubemap" class="source-img" />
+      <div v-if="sourceImageUrl" class="mt-8">
+        <h2 class="text-white text-center text-2xl mb-4 drop-shadow-lg">Uploaded image</h2>
+        <div class="bg-white rounded-xl p-6 shadow-lg flex justify-center">
+          <img
+            :src="sourceImageUrl"
+            alt="Source cubemap"
+            class="max-w-full max-h-96 h-auto block rounded-lg"
+          />
         </div>
       </div>
 
-      <div v-if="detectedInfo" class="detected-info">
-        <div class="info-badge">
-          <strong>Detected Format:</strong>
+      <div v-if="detectedInfo" class="flex gap-4 justify-center mt-8 flex-wrap">
+        <div class="bg-white px-6 py-3 rounded-lg shadow-lg">
+          <strong class="text-indigo-500 mr-2">Detected Format:</strong>
           {{ FORMAT_LABELS[detectedInfo.format] }}
         </div>
-        <div class="info-badge">
-          <strong>Face Size:</strong>
+        <div class="bg-white px-6 py-3 rounded-lg shadow-lg">
+          <strong class="text-indigo-500 mr-2">Face Size:</strong>
           {{ detectedInfo.faceSize }}×{{ detectedInfo.faceSize }}
         </div>
       </div>
 
-      <div v-if="convertedCubemaps.length > 0" class="results">
-        <h2 class="results-title">Converted Formats</h2>
-        <div class="cubemaps-grid">
+      <div v-if="convertedCubemaps.length > 0" class="mt-12">
+        <h2 class="text-white text-center text-3xl mb-8 drop-shadow-lg">Converted Formats</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <CubemapPreview
             v-for="cubemap in convertedCubemaps"
             :key="cubemap.format"
@@ -109,159 +117,3 @@ async function handleFileSelected(file: File) {
     </main>
   </div>
 </template>
-
-<style scoped>
-.app {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem;
-}
-
-.header {
-  text-align: center;
-  color: white;
-  margin-bottom: 3rem;
-}
-
-.title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.subtitle {
-  font-size: 1.125rem;
-  opacity: 0.9;
-  margin: 0;
-}
-
-.main {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.loading {
-  text-align: center;
-  padding: 3rem;
-  background: white;
-  border-radius: 12px;
-  margin-top: 2rem;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.error {
-  background: #fed7d7;
-  color: #991b1b;
-  padding: 1.5rem;
-  border-radius: 12px;
-  margin-top: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.error-icon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-}
-
-.source-image {
-  margin-top: 2rem;
-}
-
-.source-title {
-  color: white;
-  text-align: center;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.source-container {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.source-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 8px;
-}
-
-.detected-info {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-.info-badge {
-  background: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.info-badge strong {
-  color: #667eea;
-  margin-right: 0.5rem;
-}
-
-.results {
-  margin-top: 3rem;
-}
-
-.results-title {
-  color: white;
-  text-align: center;
-  font-size: 1.75rem;
-  margin-bottom: 2rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.cubemaps-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-}
-
-@media (max-width: 768px) {
-  .app {
-    padding: 1rem;
-  }
-
-  .title {
-    font-size: 2rem;
-  }
-
-  .subtitle {
-    font-size: 1rem;
-  }
-
-  .cubemaps-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
