@@ -12,6 +12,11 @@ import {
  * @returns An object containing the six faces as ImageData, or null on failure.
  */
 export function extractFaces(image: HTMLImageElement, info: CubemapInfo): CubeFaces | null {
+  // Special handling for equirectangular to cubemap conversion
+  if (info.format === CubemapFormat.EQUIRECTANGULAR) {
+    return extractFacesFromEquirectangular(image, info.faceSize);
+  }
+
   // Create a temporary canvas to extract face data
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -24,6 +29,10 @@ export function extractFaces(image: HTMLImageElement, info: CubemapInfo): CubeFa
 
   // Positions of each face in the source image
   const positions = getFacePositions(format, faceSize);
+
+  if (!positions) {
+    throw new Error("Couldn't get face positions for format: " + format);
+  }
 
   const faces: Partial<CubeFaces> = {};
 
@@ -45,8 +54,12 @@ export function extractFaces(image: HTMLImageElement, info: CubemapInfo): CubeFa
 function getFacePositions(
   format: CubemapFormat,
   faceSize: number,
-): Record<keyof CubeFaces, { x: number; y: number }> {
-  // Left = -X, right = +X
+): Record<keyof CubeFaces, { x: number; y: number }> | null {
+  if (format === CubemapFormat.EQUIRECTANGULAR) {
+    // Equirectangular format does not have fixed face positions
+    // Return an empty object or handle differently if needed
+    return null;
+  }
 
   switch (format) {
     case CubemapFormat.HORIZONTAL_CROSS:
@@ -147,7 +160,16 @@ export function convertToFormat(
   targetFormat: CubemapFormat,
   faceSize: number,
 ): ConvertedCubemap | null {
+  // Special handling for equirectangular projection
+  if (targetFormat === CubemapFormat.EQUIRECTANGULAR) {
+    return convertToEquirectangular(faces, faceSize);
+  }
+
   const positions = getFacePositions(targetFormat, faceSize);
+
+  if (!positions) {
+    throw new Error("Couldn't get face positions for format: " + targetFormat);
+  }
 
   // Calculate the dimensions of the target image
   let width = 0;
@@ -221,4 +243,243 @@ export function convertToAllFormats(faces: CubeFaces, sourceInfo: CubemapInfo): 
   }
 
   return results;
+}
+
+/**
+ * Sample a color from cubemap faces at a given 3D direction vector.
+ * @param faces - The six faces of the cubemap.
+ * @param faceSize - The size of each face.
+ * @param x - X component of direction vector.
+ * @param y - Y component of direction vector.
+ * @param z - Z component of direction vector.
+ * @returns RGBA color values.
+ */
+function sampleCubemap(
+  faces: CubeFaces,
+  faceSize: number,
+  x: number,
+  y: number,
+  z: number,
+): [number, number, number, number] {
+  // Determine which face to sample from based on largest absolute component
+  const absX = Math.abs(x);
+  const absY = Math.abs(y);
+  const absZ = Math.abs(z);
+
+  let face: ImageData;
+  let u: number;
+  let v: number;
+
+  // To get u and v : project on the face then normalize
+
+  if (absX >= absY && absX >= absZ) {
+    // X-axis dominant
+    if (x > 0) {
+      // Right face (+X)
+      face = faces.right;
+      u = (-z / absX + 1) * 0.5;
+      v = (-y / absX + 1) * 0.5;
+    } else {
+      // Left face (-X)
+      face = faces.left;
+      u = (z / absX + 1) * 0.5;
+      v = (-y / absX + 1) * 0.5;
+    }
+  } else if (absY >= absX && absY >= absZ) {
+    // Y-axis dominant
+    if (y > 0) {
+      // Top face (+Y)
+      face = faces.top;
+      u = (x / absY + 1) * 0.5;
+      v = (z / absY + 1) * 0.5;
+    } else {
+      // Bottom face (-Y)
+      face = faces.bottom;
+      u = (x / absY + 1) * 0.5;
+      v = (-z / absY + 1) * 0.5;
+    }
+  } else {
+    // Z-axis dominant
+    if (z > 0) {
+      // Front face (+Z)
+      face = faces.front;
+      u = (x / absZ + 1) * 0.5;
+      v = (-y / absZ + 1) * 0.5;
+    } else {
+      // Back face (-Z)
+      face = faces.back;
+      u = (-x / absZ + 1) * 0.5;
+      v = (-y / absZ + 1) * 0.5;
+    }
+  }
+
+  // Convert UV to pixel coordinates with clamping
+  const pixelX = Math.max(0, Math.min(faceSize - 1, Math.floor(u * faceSize)));
+  const pixelY = Math.max(0, Math.min(faceSize - 1, Math.floor(v * faceSize)));
+
+  // Get pixel data (RGBA format)
+  const index = (pixelY * faceSize + pixelX) * 4;
+  return [
+    face.data[index] ?? 0,
+    face.data[index + 1] ?? 0,
+    face.data[index + 2] ?? 0,
+    face.data[index + 3] ?? 0,
+  ];
+}
+
+/**
+ * Convert cubemap faces to equirectangular projection.
+ * @param faces - The six faces of the cubemap.
+ * @param faceSize - The size of each face.
+ * @returns The converted equirectangular image.
+ */
+function convertToEquirectangular(faces: CubeFaces, faceSize: number): ConvertedCubemap | null {
+  // Equirectangular dimensions: 2:1 ratio, width based on face size
+  const width = faceSize * 4;
+  const height = faceSize * 2;
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  const imageData = ctx.createImageData(width, height);
+
+  // For each pixel in the equirectangular image
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      // Convert pixel coordinates to UV (0 to 1)
+      const u = x / width;
+      const v = y / height;
+
+      // Convert UV to spherical coordinates
+      // Offset theta so +Z (front) is at the center (u = 0.5)
+      const theta = (u - 0.5) * 2 * Math.PI; // Longitude
+      const phi = v * Math.PI; // Latitude (0 to π)
+
+      // Convert spherical to 3D Cartesian coordinates
+      const sinPhi = Math.sin(phi);
+      const dx = sinPhi * Math.sin(theta);
+      const dy = Math.cos(phi);
+      const dz = sinPhi * Math.cos(theta);
+
+      // Sample the cubemap at this direction
+      const [r, g, b, a] = sampleCubemap(faces, faceSize, dx, dy, dz);
+
+      // Set pixel in output image
+      const index = (y * width + x) * 4;
+      imageData.data[index] = r;
+      imageData.data[index + 1] = g;
+      imageData.data[index + 2] = b;
+      imageData.data[index + 3] = a;
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  return {
+    format: CubemapFormat.EQUIRECTANGULAR,
+    dataUrl: canvas.toDataURL('image/png'),
+    width,
+    height,
+  };
+}
+
+/**
+ * Extract cubemap faces from an equirectangular image.
+ * @param image - The source equirectangular image.
+ * @param faceSize - The desired size of each face.
+ * @returns The six extracted faces.
+ */
+function extractFacesFromEquirectangular(
+  image: HTMLImageElement,
+  faceSize: number,
+): CubeFaces | null {
+  // Create a canvas to draw the source image
+  const sourceCanvas = document.createElement('canvas');
+  const sourceCtx = sourceCanvas.getContext('2d');
+  if (!sourceCtx) return null;
+
+  sourceCanvas.width = image.width;
+  sourceCanvas.height = image.height;
+  sourceCtx.drawImage(image, 0, 0);
+
+  const sourceData = sourceCtx.getImageData(0, 0, image.width, image.height);
+
+  // Helper function to sample the equirectangular image
+  const sampleEquirect = (theta: number, phi: number): [number, number, number, number] => {
+    // Normalize theta to 0-1 range (centered around +Z)
+    let u = (theta / (2 * Math.PI) + 0.5) % 1;
+    if (u < 0) u += 1;
+
+    // Normalize phi to 0-1 range
+    const v = phi / Math.PI;
+
+    // Convert to pixel coordinates
+    const x = Math.max(0, Math.min(image.width - 1, Math.floor(u * image.width)));
+    const y = Math.max(0, Math.min(image.height - 1, Math.floor(v * image.height)));
+
+    const index = (y * image.width + x) * 4;
+    return [
+      sourceData.data[index] ?? 0,
+      sourceData.data[index + 1] ?? 0,
+      sourceData.data[index + 2] ?? 0,
+      sourceData.data[index + 3] ?? 255,
+    ];
+  };
+
+  // Generate each face
+  const faces: Partial<CubeFaces> = {};
+
+  // Face configurations: [name, xDir, yDir, zDir]
+  const faceConfigs: Array<[keyof CubeFaces, (u: number, v: number) => [number, number, number]]> =
+    [
+      ['front', (u, v) => [u * 2 - 1, -(v * 2 - 1), 1]], // +Z
+      ['back', (u, v) => [-(u * 2 - 1), -(v * 2 - 1), -1]], // -Z
+      ['left', (u, v) => [-1, -(v * 2 - 1), u * 2 - 1]], // -X
+      ['right', (u, v) => [1, -(v * 2 - 1), -(u * 2 - 1)]], // +X
+      ['top', (u, v) => [u * 2 - 1, 1, v * 2 - 1]], // +Y
+      ['bottom', (u, v) => [u * 2 - 1, -1, -(v * 2 - 1)]], // -Y
+    ];
+
+  for (const [faceName, getDirection] of faceConfigs) {
+    const faceData = new ImageData(faceSize, faceSize);
+
+    for (let y = 0; y < faceSize; y++) {
+      for (let x = 0; x < faceSize; x++) {
+        // Convert pixel to UV coordinates (0 to 1)
+        const u = (x + 0.5) / faceSize;
+        const v = (y + 0.5) / faceSize;
+
+        // Get the 3D direction vector for this face pixel
+        const [dx, dy, dz] = getDirection(u, v);
+
+        // Normalize the vector
+        const length = Math.hypot(dx, dy, dz);
+        const nx = dx / length;
+        const ny = dy / length;
+        const nz = dz / length;
+
+        // Convert to spherical coordinates
+        const theta = Math.atan2(nx, nz);
+        const phi = Math.acos(ny);
+
+        // Sample the equirectangular image
+        const [r, g, b, a] = sampleEquirect(theta, phi);
+
+        // Set pixel in face
+        const index = (y * faceSize + x) * 4;
+        faceData.data[index] = r;
+        faceData.data[index + 1] = g;
+        faceData.data[index + 2] = b;
+        faceData.data[index + 3] = a;
+      }
+    }
+
+    faces[faceName] = faceData;
+  }
+
+  return faces as CubeFaces;
 }

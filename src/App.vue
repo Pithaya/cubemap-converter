@@ -30,7 +30,7 @@ async function handleFileSelected(file: File) {
     const info = detectCubemapFormat(image.width, image.height);
     if (!info) {
       error.value =
-        'Unrecognized cubemap format. Supported formats are: Cross (4x3, 3x4), Grid (2x3, 3x2), Row/Column (6x1, 1x6)';
+        'Unrecognized cubemap format. Supported formats are: Cross (4x3, 3x4), Grid (2x3, 3x2), Row/Column (6x1, 1x6), Equirectangular (2:1)';
       return;
     }
 

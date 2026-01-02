@@ -69,9 +69,19 @@ describe('detectCubemapFormat', () => {
     });
   });
 
+  describe('Equirectangular (2:1)', () => {
+    it('should detect equirectangular format with 100px height', () => {
+      const result = detectCubemapFormat(200, 100);
+      expect(result).not.toBeNull();
+      expect(result?.format).toBe(CubemapFormat.EQUIRECTANGULAR);
+      expect(result?.faceSize).toBe(50);
+      expect(result?.width).toBe(200);
+      expect(result?.height).toBe(100);
+    });
+  });
+
   describe('Invalid formats', () => {
     it('should return null for dimensions that do not match any format', () => {
-      expect(detectCubemapFormat(200, 100)).toBeNull();
       expect(detectCubemapFormat(100, 100)).toBeNull();
     });
 

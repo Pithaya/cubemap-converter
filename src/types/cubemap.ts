@@ -5,6 +5,7 @@ export enum CubemapFormat {
   ROW_3X2 = 'row_3x2',
   COLUMN_1X6 = 'column_1x6',
   ROW_6X1 = 'row_6x1',
+  EQUIRECTANGULAR = 'equirectangular',
 }
 
 export interface CubeFaces {
@@ -37,4 +38,5 @@ export const FORMAT_LABELS: Record<CubemapFormat, string> = {
   [CubemapFormat.ROW_3X2]: '3x2 Grid',
   [CubemapFormat.COLUMN_1X6]: '1x6 Column',
   [CubemapFormat.ROW_6X1]: '6x1 Row',
+  [CubemapFormat.EQUIRECTANGULAR]: 'Equirectangular (2:1)',
 };

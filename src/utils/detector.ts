@@ -89,5 +89,17 @@ export function detectCubemapFormat(width: number, height: number): CubemapInfo 
     }
   }
 
+  // Equirectangular (2:1 ratio)
+  if (width === height * 2) {
+    // For equirectangular, faceSize is derived from width
+    const faceSize = width / 4;
+    return {
+      format: CubemapFormat.EQUIRECTANGULAR,
+      faceSize,
+      width,
+      height,
+    };
+  }
+
   return null;
 }
