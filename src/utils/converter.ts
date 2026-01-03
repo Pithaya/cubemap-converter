@@ -313,17 +313,71 @@ function sampleCubemap(
     }
   }
 
-  // Convert UV to pixel coordinates with clamping
-  const pixelX = Math.max(0, Math.min(faceSize - 1, Math.floor(u * faceSize)));
-  const pixelY = Math.max(0, Math.min(faceSize - 1, Math.floor(v * faceSize)));
+  // Bicubic interpolation for better quality
 
-  // Get pixel data (RGBA format)
-  const index = (pixelY * faceSize + pixelX) * 4;
+  // Position (can fall between pixels)
+  const px = u * faceSize - 0.5;
+  const py = v * faceSize - 0.5;
+
+  // Pixel position
+  const x1 = Math.floor(px);
+  const y1 = Math.floor(py);
+
+  // Fractional part (distance to next pixel)
+  const fx = px - x1;
+  const fy = py - y1;
+
+  // Cubic hermite interpolation kernel
+  const cubicWeight = (t: number): [number, number, number, number] => {
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return [
+      -0.5 * t3 + t2 - 0.5 * t, // w0
+      1.5 * t3 - 2.5 * t2 + 1, // w1
+      -1.5 * t3 + 2 * t2 + 0.5 * t, // w2
+      0.5 * t3 - 0.5 * t2, // w3
+    ];
+  };
+
+  const wx = cubicWeight(fx);
+  const wy = cubicWeight(fy);
+
+  // Sample 4x4 grid of pixels
+  const getPixel = (x: number, y: number): [number, number, number, number] => {
+    const cx = Math.max(0, Math.min(faceSize - 1, x));
+    const cy = Math.max(0, Math.min(faceSize - 1, y));
+    const idx = (cy * faceSize + cx) * 4;
+    return [
+      face.data[idx] ?? 0,
+      face.data[idx + 1] ?? 0,
+      face.data[idx + 2] ?? 0,
+      face.data[idx + 3] ?? 255,
+    ];
+  };
+
+  // Bicubic interpolation on 4x4 grid
+  let r = 0,
+    g = 0,
+    b = 0,
+    a = 0;
+
+  for (let dy = 0; dy < 4; dy++) {
+    for (let dx = 0; dx < 4; dx++) {
+      const [pr, pg, pb, pa] = getPixel(x1 - 1 + dx, y1 - 1 + dy);
+      const weight = (wx[dx] ?? 0) * (wy[dy] ?? 0);
+      r += pr * weight;
+      g += pg * weight;
+      b += pb * weight;
+      a += pa * weight;
+    }
+  }
+
+  // Clamp values to valid range
   return [
-    face.data[index] ?? 0,
-    face.data[index + 1] ?? 0,
-    face.data[index + 2] ?? 0,
-    face.data[index + 3] ?? 0,
+    Math.max(0, Math.min(255, r)),
+    Math.max(0, Math.min(255, g)),
+    Math.max(0, Math.min(255, b)),
+    Math.max(0, Math.min(255, a)),
   ];
 }
 
@@ -334,9 +388,9 @@ function sampleCubemap(
  * @returns The converted equirectangular image.
  */
 function convertToEquirectangular(faces: CubeFaces, faceSize: number): ConvertedCubemap | null {
-  // Equirectangular dimensions: 2:1 ratio, width based on face size
-  const width = faceSize * 4;
-  const height = faceSize * 2;
+  // Equirectangular dimensions: 2:1 ratio, higher resolution for better quality
+  const width = faceSize * 8; // Increased from 4 to 8 for better quality
+  const height = faceSize * 4; // Increased from 2 to 4
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');

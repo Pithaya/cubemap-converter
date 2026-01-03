@@ -1,29 +1,30 @@
-# cubemap-format-converter
+# 🗺️ Cubemap format converter
 
-This template should help get you started developing with Vue 3 in Vite.
+An online tool to convert cubemaps between different formats.
 
-## Recommended IDE Setup
+## Supported formats
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Upon uploading an image, the current format will be automatically detected.  
+The example cubemap images are taken from the [Godot documentation](https://docs.godotengine.org/en/stable/classes/class_cubemap.html).
 
-## Recommended Browser Setup
+| Format           |                               Example                               |
+| :--------------- | :-----------------------------------------------------------------: |
+| Row (6x1)        |       <img src="./docs/img/cubemap_6x1.png" width="200px" />        |
+| Column (1x6)     |       <img src="./docs/img/cubemap_1x6.png" height="200px" />       |
+| Row (3x2)        |       <img src="./docs/img/cubemap_3x2.png" width="200px" />        |
+| Column (2x3)     |       <img src="./docs/img/cubemap_2x3.png" height="200px" />       |
+| Horizontal Cross | <img src="./docs/img/cubemap_horizontal_cross.png" width="200px" /> |
+| Vertical Cross   | <img src="./docs/img/cubemap_vertical_cross.png" height="200px" />  |
+| Equirectangular  | <img src="./docs/img/cubemap_equirectangular.png" width="200px" />  |
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+You can use this image to test the tool (from [Learn OpenGL](https://learnopengl.com/Advanced-OpenGL/Cubemaps)):
+![Sample cubemap](./docs/img/cubemap_skybox.png)
 
 ## Project Setup
+
+This project is made with Vue.js.
+
+### Install dependencies
 
 ```sh
 npm install
@@ -39,10 +40,4 @@ npm run dev
 
 ```sh
 npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
