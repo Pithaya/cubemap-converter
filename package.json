@@ -14,14 +14,19 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "test": "vitest"
+    "test": "vitest",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
+    "lucide-vue-next": "^0.562.0",
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.26"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.1.11",
+    "@storybook/vue3-vite": "^10.1.11",
     "@tsconfig/node24": "^24.0.3",
     "@types/node": "^24.10.4",
     "@vitejs/plugin-vue": "^6.0.3",
@@ -29,11 +34,13 @@
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.39.2",
+    "eslint-plugin-storybook": "^10.1.11",
     "eslint-plugin-vue": "~10.6.2",
     "jiti": "^2.6.1",
     "jsdom": "^27.4.0",
     "npm-run-all2": "^8.0.4",
     "prettier": "3.7.4",
+    "storybook": "^10.1.11",
     "typescript": "~5.9.3",
     "vite": "^7.3.0",
     "vite-plugin-vue-devtools": "^8.0.5",

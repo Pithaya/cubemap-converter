@@ -6,6 +6,10 @@ import { detectCubemapFormat } from './utils/detector';
 import { convertToAllFormats, extractFaces } from './utils/converter';
 import { type ConvertedCubemap, type CubemapInfo, FORMAT_LABELS } from './types/cubemap';
 import { loadImage } from './utils/image';
+import ThemeToggleButton from './components/ThemeToggleButton.vue';
+import DetectedInfoTag from './components/DetectedInfoTag.vue';
+import ProcessingCard from './components/ProcessingCard.vue';
+import ErrorCard from './components/ErrorCard.vue';
 
 const isProcessing = ref(false);
 const error = ref<string | null>(null);
@@ -73,41 +77,32 @@ async function handleFileSelected(file: File) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-linear-to-br from-indigo-500 to-purple-600 p-8 md:p-4">
-    <header class="text-center text-white mb-12">
-      <h1 class="text-4xl md:text-5xl font-bold mb-2 drop-shadow-lg">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 md:p-4 relative">
+    <ThemeToggleButton />
+
+    <header class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold mb-2 text-gray-900 dark:text-white">
         🗺️ Cubemap Format Converter
       </h1>
-      <p class="text-lg opacity-90">
-        Convert your cubemaps between different formats (Cross, Grid, Row, Column)
+      <p class="text-lg text-gray-600 dark:text-gray-300">
+        Convert your cubemaps between different formats
       </p>
     </header>
 
-    <main class="max-w-7xl mx-auto">
+    <main class="max-w-7xl mx-auto flex flex-col gap-8">
       <FileUpload @file-selected="handleFileSelected" />
 
-      <div v-if="isProcessing" class="mt-8 text-center p-12 bg-white rounded-xl">
+      <ProcessingCard v-if="isProcessing" />
+
+      <ErrorCard v-if="error" :error="error" />
+
+      <div v-if="sourceImageUrl && !isProcessing">
+        <h2 class="text-gray-900 dark:text-white text-center text-2xl mb-4 font-semibold">
+          Uploaded image
+        </h2>
         <div
-          class="w-12 h-12 border-4 border-gray-200 border-t-indigo-500 rounded-full mx-auto mb-4 animate-spin"
-        ></div>
-        <p>Processing...</p>
-      </div>
-
-      <div v-if="error" class="mt-8 bg-red-100 text-red-800 p-6 rounded-xl flex items-center gap-4">
-        <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <p>{{ error }}</p>
-      </div>
-
-      <div v-if="sourceImageUrl" class="mt-8">
-        <h2 class="text-white text-center text-2xl mb-4 drop-shadow-lg">Uploaded image</h2>
-        <div class="bg-white rounded-xl p-6 shadow-lg flex justify-center">
+          class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 flex justify-center"
+        >
           <img
             :src="sourceImageUrl"
             alt="Source cubemap"
@@ -116,31 +111,37 @@ async function handleFileSelected(file: File) {
         </div>
       </div>
 
-      <div v-if="extractedFaces" class="mt-8">
-        <h2 class="text-white text-center text-2xl mb-4 drop-shadow-lg">Extracted Faces</h2>
-        <div class="bg-white rounded-xl p-6 shadow-lg">
+      <div v-if="extractedFaces">
+        <h2 class="text-gray-900 dark:text-white text-center text-2xl mb-4 font-semibold">
+          Extracted Faces
+        </h2>
+        <div
+          class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
+        >
           <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-6 gap-4">
             <div v-for="(url, faceName) in extractedFaces" :key="faceName" class="text-center">
               <img :src="url" :alt="faceName" class="w-full h-auto block rounded-lg mb-2" />
-              <span class="text-sm font-medium text-gray-700 capitalize">{{ faceName }}</span>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">{{
+                faceName
+              }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div v-if="detectedInfo" class="flex gap-4 justify-center mt-8 flex-wrap">
-        <div class="bg-white px-6 py-3 rounded-lg shadow-lg">
-          <strong class="text-indigo-500 mr-2">Detected Format:</strong>
-          {{ FORMAT_LABELS[detectedInfo.format] }}
-        </div>
-        <div class="bg-white px-6 py-3 rounded-lg shadow-lg">
-          <strong class="text-indigo-500 mr-2">Face Size:</strong>
-          {{ detectedInfo.faceSize }}×{{ detectedInfo.faceSize }}
-        </div>
+      <div v-if="detectedInfo" class="flex gap-4 justify-center flex-wrap">
+        <DetectedInfoTag label="Detected Format" :value="FORMAT_LABELS[detectedInfo.format]" />
+        <DetectedInfoTag
+          label="Image size"
+          :value="`${detectedInfo.width}x${detectedInfo.height}`"
+        />
+        <DetectedInfoTag label="Face size" :value="`${detectedInfo.faceSize}px`" />
       </div>
 
-      <div v-if="convertedCubemaps.length > 0" class="mt-12">
-        <h2 class="text-white text-center text-3xl mb-8 drop-shadow-lg">Converted Formats</h2>
+      <div v-if="convertedCubemaps.length > 0">
+        <h2 class="text-gray-900 dark:text-white text-center text-3xl mb-8 font-semibold">
+          Converted Formats
+        </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <CubemapPreview
             v-for="cubemap in convertedCubemaps"
