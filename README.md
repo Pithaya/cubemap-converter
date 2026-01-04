@@ -1,6 +1,6 @@
 # 🗺️ Cubemap format converter
 
-An online tool to convert cubemaps between different formats.
+An online tool to convert cubemaps between different formats, or create your own.
 
 ## Supported formats
 
@@ -19,6 +19,10 @@ The example cubemap images are taken from the [Godot documentation](https://docs
 
 You can use this image to test the tool (from [Learn OpenGL](https://learnopengl.com/Advanced-OpenGL/Cubemaps)):
 ![Sample cubemap](./docs/img/cubemap_skybox.png)
+
+## Custom format
+
+Use the drag and drop editor to organize the faces.
 
 ## Project Setup
 

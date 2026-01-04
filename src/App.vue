@@ -1,22 +1,43 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Wand2 } from 'lucide-vue-next';
 import FileUpload from './components/FileUpload.vue';
 import CubemapPreview from './components/CubemapPreview.vue';
+import CustomCubemapModal from './components/CustomCubemapModal.vue';
 import { detectCubemapFormat } from './utils/detector';
-import { convertToAllFormats, extractFaces } from './utils/converter';
-import { type ConvertedCubemap, type CubemapInfo, FORMAT_LABELS } from './types/cubemap';
-import { loadImage } from './utils/image';
+import { convertToAllFormats, convertToCustomFormat, extractFaces } from './utils/converter';
+import {
+  type ConvertedCubemap,
+  type CubemapInfo,
+  FORMAT_LABELS,
+  type CubeFaces,
+} from './types/cubemap';
+import { downloadDataUrl, loadImage } from './utils/image';
 import ThemeToggleButton from './components/ThemeToggleButton.vue';
 import DetectedInfoTag from './components/DetectedInfoTag.vue';
 import ProcessingCard from './components/ProcessingCard.vue';
 import ErrorCard from './components/ErrorCard.vue';
+import SecondaryButton from './components/SecondaryButton.vue';
+import type { CustomFaceData } from './types/custom-face-data';
 
 const isProcessing = ref(false);
 const error = ref<string | null>(null);
 const detectedInfo = ref<CubemapInfo | null>(null);
 const convertedCubemaps = ref<ConvertedCubemap[]>([]);
 const sourceImageUrl = ref<string | null>(null);
-const extractedFaces = ref<Record<string, string> | null>(null);
+
+const facesUrls = ref<Record<keyof CubeFaces, string> | null>(null);
+const facesData = ref<CubeFaces | null>(null);
+
+const isCustomModalOpen = ref(false);
+
+function openCustomModal() {
+  isCustomModalOpen.value = true;
+}
+
+function closeCustomModal() {
+  isCustomModalOpen.value = false;
+}
 
 async function handleFileSelected(file: File) {
   isProcessing.value = true;
@@ -24,7 +45,8 @@ async function handleFileSelected(file: File) {
   detectedInfo.value = null;
   convertedCubemaps.value = [];
   sourceImageUrl.value = URL.createObjectURL(file);
-  extractedFaces.value = null;
+  facesData.value = null;
+  facesUrls.value = null;
 
   try {
     // Load the image
@@ -48,21 +70,26 @@ async function handleFileSelected(file: File) {
       return;
     }
 
+    facesData.value = faces;
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (ctx) {
       canvas.width = info.faceSize;
       canvas.height = info.faceSize;
-      const faceUrls: Record<string, string> = {};
+
+      const faceUrls: Partial<Record<keyof CubeFaces, string>> = {};
+
       for (const [faceName, faceData] of Object.entries(faces)) {
         ctx.putImageData(faceData, 0, 0);
-        faceUrls[faceName] = canvas.toDataURL('image/png');
+        faceUrls[faceName as keyof CubeFaces] = canvas.toDataURL('image/png');
       }
-      extractedFaces.value = faceUrls;
+
+      facesUrls.value = faceUrls as Record<keyof CubeFaces, string>;
     }
 
     // Convert to all other formats
-    const converted = convertToAllFormats(faces, info);
+    const converted = convertToAllFormats(facesData.value, info);
     convertedCubemaps.value = converted;
 
     if (converted.length === 0) {
@@ -73,6 +100,24 @@ async function handleFileSelected(file: File) {
   } finally {
     isProcessing.value = false;
   }
+}
+
+function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceData>) {
+  if (!facesData.value || !detectedInfo.value) {
+    return;
+  }
+
+  const generated = convertToCustomFormat(
+    customCubemapData,
+    facesData.value,
+    detectedInfo.value.faceSize,
+  );
+
+  if (!generated) {
+    return;
+  }
+
+  downloadDataUrl(generated.dataUrl, 'cubemap_custom.png');
 }
 </script>
 
@@ -111,15 +156,15 @@ async function handleFileSelected(file: File) {
         </div>
       </div>
 
-      <div v-if="extractedFaces">
-        <h2 class="text-gray-900 dark:text-white text-center text-2xl mb-4 font-semibold">
+      <div v-if="facesUrls">
+        <h2 class="text-gray-900 dark:text-white text-center text-2xl font-semibold mb-4">
           Extracted Faces
         </h2>
         <div
           class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
         >
           <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-6 gap-4">
-            <div v-for="(url, faceName) in extractedFaces" :key="faceName" class="text-center">
+            <div v-for="(url, faceName) in facesUrls" :key="faceName" class="text-center">
               <img :src="url" :alt="faceName" class="w-full h-auto block rounded-lg mb-2" />
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">{{
                 faceName
@@ -139,9 +184,19 @@ async function handleFileSelected(file: File) {
       </div>
 
       <div v-if="convertedCubemaps.length > 0">
-        <h2 class="text-gray-900 dark:text-white text-center text-3xl mb-8 font-semibold">
-          Converted Formats
-        </h2>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex-1"></div>
+          <h2 class="text-gray-900 dark:text-white text-2xl font-semibold flex-1 text-center">
+            Converted Formats
+          </h2>
+          <div class="flex-1 flex justify-end">
+            <SecondaryButton @click="openCustomModal">
+              <Wand2 class="w-4 h-4" />
+              Create Custom
+            </SecondaryButton>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <CubemapPreview
             v-for="cubemap in convertedCubemaps"
@@ -151,5 +206,16 @@ async function handleFileSelected(file: File) {
         </div>
       </div>
     </main>
+
+    <Teleport to="body">
+      <CustomCubemapModal
+        v-if="facesUrls && detectedInfo"
+        :is-open="isCustomModalOpen"
+        :faces="facesUrls"
+        :face-size="detectedInfo.faceSize"
+        @close="closeCustomModal"
+        @generate="handleGenerate"
+      />
+    </Teleport>
   </div>
 </template>

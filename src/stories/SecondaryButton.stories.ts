@@ -1,22 +1,22 @@
-import PrimaryButton from '@/components/PrimaryButton.vue';
+import SecondaryButton from '@/components/SecondaryButton.vue';
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { fn } from 'storybook/test';
 
 const meta = {
-  title: 'Buttons/PrimaryButton',
-  component: PrimaryButton,
+  title: 'Buttons/SecondaryButton',
+  component: SecondaryButton,
   tags: ['autodocs'],
   args: {
     onClick: fn(),
   },
   render: (args) => ({
-    components: { PrimaryButton },
+    components: { SecondaryButton },
     setup() {
       return { args };
     },
-    template: '<PrimaryButton v-bind="args">Click me</PrimaryButton>',
+    template: '<SecondaryButton v-bind="args">Click me</SecondaryButton>',
   }),
-} satisfies Meta<typeof PrimaryButton>;
+} satisfies Meta<typeof SecondaryButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

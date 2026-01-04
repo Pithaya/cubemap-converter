@@ -2,6 +2,7 @@
 import { Download } from 'lucide-vue-next';
 import { type ConvertedCubemap, FORMAT_LABELS } from '../types/cubemap';
 import PrimaryButton from './PrimaryButton.vue';
+import { downloadDataUrl } from '@/utils/image';
 
 type Props = {
   cubemap: ConvertedCubemap;
@@ -10,12 +11,7 @@ type Props = {
 defineProps<Props>();
 
 function downloadImage(dataUrl: string, format: string) {
-  const link = document.createElement('a');
-  link.href = dataUrl;
-  link.download = `cubemap_${format}.png`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  downloadDataUrl(dataUrl, `cubemap_${format}.png`);
 }
 </script>
 
@@ -44,7 +40,7 @@ function downloadImage(dataUrl: string, format: string) {
       />
     </div>
 
-    <PrimaryButton @click="downloadImage(cubemap.dataUrl, cubemap.format)">
+    <PrimaryButton class="w-full" @click="downloadImage(cubemap.dataUrl, cubemap.format)">
       <Download class="w-5 h-5" />
       Download
     </PrimaryButton>

@@ -1,3 +1,4 @@
+import type { CustomFaceData } from '@/types/custom-face-data';
 import {
   CubemapFormat,
   type CubeFaces,
@@ -243,6 +244,89 @@ export function convertToAllFormats(faces: CubeFaces, sourceInfo: CubemapInfo): 
   }
 
   return results;
+}
+
+export function convertToCustomFormat(
+  customCubemapData: Record<keyof CubeFaces, CustomFaceData>,
+  faces: CubeFaces,
+  faceSize: number,
+): Omit<ConvertedCubemap, 'format'> | null {
+  // Calculate the dimensions of the target image
+  const maxX = Math.max(
+    ...Object.values(customCubemapData).map((f) => f.position.x * faceSize + faceSize),
+  );
+  const minX = Math.min(...Object.values(customCubemapData).map((f) => f.position.x * faceSize));
+  const maxY = Math.max(
+    ...Object.values(customCubemapData).map((f) => f.position.y * faceSize + faceSize),
+  );
+  const minY = Math.min(...Object.values(customCubemapData).map((f) => f.position.y * faceSize));
+
+  console.log('Min x', minX, ' (', minX / faceSize, 'faces )');
+  console.log('Min y', minY, ' (', minY / faceSize, 'faces )');
+  console.log('Max x', maxX, ' (', maxX / faceSize, 'faces )');
+  console.log('Max y', maxY, ' (', maxY / faceSize, 'faces )');
+
+  const width = maxX - minX;
+  const height = maxY - minY;
+
+  //const width = faceSize * 6;
+  //const height = faceSize * 6;
+
+  console.log('Width:', width, ' (', width / faceSize, 'faces )');
+  console.log('Height:', height, ' (', height / faceSize, 'faces )');
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  // Draw each face into its position
+  for (const [faceName, data] of Object.entries(customCubemapData)) {
+    const faceData = faces[faceName as keyof CubeFaces];
+
+    // Create temporary canvas for this face
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return null;
+
+    tempCanvas.width = faceSize;
+    tempCanvas.height = faceSize;
+
+    tempCtx.putImageData(faceData, 0, 0);
+
+    if (data.rotation === 0) {
+      ctx.drawImage(
+        tempCanvas,
+        data.position.x * faceSize - minX,
+        data.position.y * faceSize - minY,
+      );
+    } else {
+      // Save the context state
+      ctx.save();
+
+      // Move to the center of where the face should be
+      const centerX = data.position.x * faceSize - minX + faceSize / 2;
+      const centerY = data.position.y * faceSize - minY + faceSize / 2;
+      ctx.translate(centerX, centerY);
+
+      // Rotate
+      ctx.rotate(data.rotation * (Math.PI / 180));
+
+      // Draw the image centered on the rotation point
+      ctx.drawImage(tempCanvas, -faceSize / 2, -faceSize / 2);
+
+      // Restore the context state
+      ctx.restore();
+    }
+  }
+
+  return {
+    dataUrl: canvas.toDataURL('image/png'),
+    width,
+    height,
+  };
 }
 
 /**

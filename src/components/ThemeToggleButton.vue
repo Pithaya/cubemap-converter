@@ -8,10 +8,10 @@ function toggleDarkMode() {
   isDarkMode.value = !isDarkMode.value;
 
   if (isDarkMode.value) {
-    document.querySelector('#app')?.classList.add('dark');
+    document.documentElement.classList.add('dark');
     localStorage.setItem('theme', 'dark');
   } else {
-    document.querySelector('#app')?.classList.remove('dark');
+    document.documentElement.classList.remove('dark');
     localStorage.setItem('theme', 'light');
   }
 }

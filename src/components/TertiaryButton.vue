@@ -10,8 +10,8 @@ const handleClick = () => {
 
 <template>
   <button
-    class="px-4 py-3 bg-teal-700 dark:bg-teal-400 text-white dark:text-gray-900 rounded-lg cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 hover:bg-teal-600 dark:hover:bg-teal-300"
     @click="handleClick"
+    class="cursor-pointer px-4 py-2 rounded-lg font-medium transition-colors border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
   >
     <slot></slot>
   </button>
