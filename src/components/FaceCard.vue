@@ -58,10 +58,10 @@ function handleDrop(event: DragEvent) {
   >
     <button
       @click.stop="handleRotate"
-      class="absolute top-2 right-2 z-10 p-2 bg-white/80 dark:bg-gray-800/80 rounded-lg backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 transition-colors cursor-pointer"
+      class="absolute top-2 right-2 z-10 p-1 bg-white/80 dark:bg-gray-800/80 rounded-lg backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 transition-colors cursor-pointer"
       :aria-label="`Rotate ${faceName} face`"
     >
-      <RotateCw class="w-4 h-4 text-teal-700 dark:text-teal-400" />
+      <RotateCw class="size-3 text-teal-700 dark:text-teal-400" />
     </button>
 
     <div class="aspect-square group">
