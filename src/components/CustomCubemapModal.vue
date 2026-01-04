@@ -148,7 +148,7 @@ function handleReset() {
           class="flex flex-col px-6 pt-6 pb-2 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-20"
         >
           <div class="flex items-center justify-between gap-4">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Custom Cubemap Creator</h2>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Custom cubemap</h2>
             <button
               @click="handleClose"
               class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
