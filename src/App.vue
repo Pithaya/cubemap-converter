@@ -184,7 +184,7 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
       </div>
 
       <div v-if="convertedCubemaps.length > 0">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col gap-2 sm:flex-row sm:gap-0 items-center sm:justify-between mb-4">
           <div class="flex-1"></div>
           <h2 class="text-gray-900 dark:text-white text-2xl font-semibold flex-1 text-center">
             Converted Formats
