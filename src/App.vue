@@ -19,6 +19,7 @@ import ProcessingCard from './components/ProcessingCard.vue';
 import ErrorCard from './components/ErrorCard.vue';
 import SecondaryButton from './components/SecondaryButton.vue';
 import type { CustomFaceData } from './types/custom-face-data';
+import DetectedImagePreview from './components/DetectedImagePreview.vue';
 
 const isProcessing = ref(false);
 const error = ref<string | null>(null);
@@ -125,7 +126,7 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 md:p-4 relative">
     <ThemeToggleButton />
 
-    <header class="text-center mb-12">
+    <header class="text-center mb-6">
       <h1 class="text-4xl md:text-5xl font-bold mb-2 text-gray-900 dark:text-white">
         🗺️ Cubemap Format Converter
       </h1>
@@ -141,37 +142,13 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
 
       <ErrorCard v-if="error" :error="error" />
 
-      <div v-if="sourceImageUrl && !isProcessing">
-        <h2 class="text-gray-900 dark:text-white text-center text-2xl mb-4 font-semibold">
-          Uploaded image
-        </h2>
-        <div
-          class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 flex justify-center"
-        >
-          <img
-            :src="sourceImageUrl"
-            alt="Source cubemap"
-            class="max-w-full max-h-96 h-auto block rounded-lg"
-          />
-        </div>
-      </div>
-
-      <div v-if="facesUrls">
-        <h2 class="text-gray-900 dark:text-white text-center text-2xl font-semibold mb-4">
-          Extracted Faces
-        </h2>
-        <div
-          class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
-        >
-          <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-6 gap-4">
-            <div v-for="(url, faceName) in facesUrls" :key="faceName" class="text-center">
-              <img :src="url" :alt="faceName" class="w-full h-auto block rounded-lg mb-2" />
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">{{
-                faceName
-              }}</span>
-            </div>
-          </div>
-        </div>
+      <div class="flex w-full justify-center">
+        <DetectedImagePreview
+          v-if="sourceImageUrl && !isProcessing && facesUrls"
+          class="max-w-[80%]"
+          :source-image-url="sourceImageUrl"
+          :faces-urls="facesUrls"
+        />
       </div>
 
       <div v-if="detectedInfo" class="flex gap-4 justify-center flex-wrap">

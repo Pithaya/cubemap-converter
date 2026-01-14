@@ -51,7 +51,7 @@ function openFileDialog() {
 
 <template>
   <div
-    class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 md:p-8 text-center cursor-pointer transition-all duration-300"
+    class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center cursor-pointer transition-all duration-300"
     :class="{
       'border-teal-500 bg-teal-50 dark:border-teal-400 dark:bg-gray-700': isDragging,
       'bg-gray-50 dark:bg-gray-800 hover:border-teal-500 hover:bg-teal-50 dark:hover:border-teal-400 dark:hover:bg-gray-700':
@@ -65,8 +65,8 @@ function openFileDialog() {
     <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileInput" />
 
     <div class="pointer-events-none">
-      <CloudUpload class="w-16 h-16 mx-auto mb-4 text-teal-700 dark:text-teal-400" />
-      <p class="text-lg text-gray-800 dark:text-gray-200 mb-2">
+      <CloudUpload class="w-16 h-16 mx-auto text-teal-700 dark:text-teal-400" />
+      <p class="text-lg text-gray-800 dark:text-gray-200">
         <span class="text-teal-700 dark:text-teal-400 font-semibold">Click to choose</span> or drag
         and drop a cubemap
       </p>

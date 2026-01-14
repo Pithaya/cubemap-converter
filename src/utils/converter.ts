@@ -5,6 +5,7 @@ import {
   type CubemapInfo,
   type ConvertedCubemap,
 } from '../types/cubemap';
+import { bicubicInterpolate } from './interpolation';
 
 /**
  * Extracts the six faces from a cubemap image based on its detected format.
@@ -398,71 +399,7 @@ function sampleCubemap(
   }
 
   // Bicubic interpolation for better quality
-
-  // Position (can fall between pixels)
-  const px = u * faceSize - 0.5;
-  const py = v * faceSize - 0.5;
-
-  // Pixel position
-  const x1 = Math.floor(px);
-  const y1 = Math.floor(py);
-
-  // Fractional part (distance to next pixel)
-  const fx = px - x1;
-  const fy = py - y1;
-
-  // Cubic hermite interpolation kernel
-  const cubicWeight = (t: number): [number, number, number, number] => {
-    const t2 = t * t;
-    const t3 = t2 * t;
-    return [
-      -0.5 * t3 + t2 - 0.5 * t, // w0
-      1.5 * t3 - 2.5 * t2 + 1, // w1
-      -1.5 * t3 + 2 * t2 + 0.5 * t, // w2
-      0.5 * t3 - 0.5 * t2, // w3
-    ];
-  };
-
-  const wx = cubicWeight(fx);
-  const wy = cubicWeight(fy);
-
-  // Sample 4x4 grid of pixels
-  const getPixel = (x: number, y: number): [number, number, number, number] => {
-    const cx = Math.max(0, Math.min(faceSize - 1, x));
-    const cy = Math.max(0, Math.min(faceSize - 1, y));
-    const idx = (cy * faceSize + cx) * 4;
-    return [
-      face.data[idx] ?? 0,
-      face.data[idx + 1] ?? 0,
-      face.data[idx + 2] ?? 0,
-      face.data[idx + 3] ?? 255,
-    ];
-  };
-
-  // Bicubic interpolation on 4x4 grid
-  let r = 0,
-    g = 0,
-    b = 0,
-    a = 0;
-
-  for (let dy = 0; dy < 4; dy++) {
-    for (let dx = 0; dx < 4; dx++) {
-      const [pr, pg, pb, pa] = getPixel(x1 - 1 + dx, y1 - 1 + dy);
-      const weight = (wx[dx] ?? 0) * (wy[dy] ?? 0);
-      r += pr * weight;
-      g += pg * weight;
-      b += pb * weight;
-      a += pa * weight;
-    }
-  }
-
-  // Clamp values to valid range
-  return [
-    Math.max(0, Math.min(255, r)),
-    Math.max(0, Math.min(255, g)),
-    Math.max(0, Math.min(255, b)),
-    Math.max(0, Math.min(255, a)),
-  ];
+  return bicubicInterpolate(u, v, face, faceSize);
 }
 
 /**

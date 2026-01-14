@@ -3,6 +3,7 @@ import { Download } from 'lucide-vue-next';
 import { type ConvertedCubemap, FORMAT_LABELS } from '../types/cubemap';
 import PrimaryButton from './PrimaryButton.vue';
 import { downloadDataUrl } from '@/utils/image';
+import DefaultCard from './DefaultCard.vue';
 
 type Props = {
   cubemap: ConvertedCubemap;
@@ -16,9 +17,7 @@ function downloadImage(dataUrl: string, format: string) {
 </script>
 
 <template>
-  <div
-    class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-xl"
-  >
+  <DefaultCard class="transition-all duration-200 hover:shadow-xl">
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
         {{ FORMAT_LABELS[cubemap.format] }}
@@ -44,5 +43,5 @@ function downloadImage(dataUrl: string, format: string) {
       <Download class="w-5 h-5" />
       Download
     </PrimaryButton>
-  </div>
+  </DefaultCard>
 </template>

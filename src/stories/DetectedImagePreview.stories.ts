@@ -1,28 +1,33 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 
-import CubemapPreview from '../components/CubemapPreview.vue';
-import { CubemapFormat } from '@/types/cubemap';
+import DetectedImagePreview from '../components/DetectedImagePreview.vue';
 import horizontalCross from '../../docs/img/cubemap_horizontal_cross.png?url';
 import wide from '../../docs/img/cubemap_6x1.png?url';
 import tall from '../../docs/img/cubemap_1x6.png?url';
+import faceImg from '../../docs/img/face_right.png?url';
 
 const meta = {
-  title: 'CubemapPreview',
-  component: CubemapPreview,
+  title: 'DetectedImagePreview',
+  component: DetectedImagePreview,
   tags: ['autodocs'],
-} satisfies Meta<typeof CubemapPreview>;
+} satisfies Meta<typeof DetectedImagePreview>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const facesUrls = {
+  right: faceImg,
+  left: faceImg,
+  top: faceImg,
+  bottom: faceImg,
+  front: faceImg,
+  back: faceImg,
+};
+
 export const LightMode: Story = {
   args: {
-    cubemap: {
-      format: CubemapFormat.HORIZONTAL_CROSS,
-      width: 2048,
-      height: 1536,
-      dataUrl: horizontalCross,
-    },
+    sourceImageUrl: horizontalCross,
+    facesUrls,
   },
   decorators: [
     () => ({
@@ -33,28 +38,20 @@ export const LightMode: Story = {
 
 export const DarkMode: Story = {
   args: {
-    cubemap: {
-      format: CubemapFormat.HORIZONTAL_CROSS,
-      width: 2048,
-      height: 1536,
-      dataUrl: horizontalCross,
-    },
+    sourceImageUrl: horizontalCross,
+    facesUrls,
   },
   decorators: [
     () => ({
-      template: '<div class="dark" style="background-color: #101828"><story /></div>',
+      template: '<div class="dark"><story /></div>',
     }),
   ],
 };
 
 export const WideImage: Story = {
   args: {
-    cubemap: {
-      format: CubemapFormat.ROW_6X1,
-      width: 3072,
-      height: 512,
-      dataUrl: wide,
-    },
+    sourceImageUrl: wide,
+    facesUrls,
   },
   decorators: [
     () => ({
@@ -65,12 +62,8 @@ export const WideImage: Story = {
 
 export const TallImage: Story = {
   args: {
-    cubemap: {
-      format: CubemapFormat.COLUMN_1X6,
-      width: 512,
-      height: 3072,
-      dataUrl: tall,
-    },
+    sourceImageUrl: tall,
+    facesUrls,
   },
   decorators: [
     () => ({
