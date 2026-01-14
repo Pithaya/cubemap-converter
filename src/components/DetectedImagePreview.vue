@@ -24,9 +24,15 @@ defineProps<Props>();
       </h2>
 
       <DefaultCard class="flex justify-center @lg:order-0 order-2">
-        <div class="bg-white dark:bg-gray-900 rounded-lg w-full flex justify-center">
-          <img :src="sourceImageUrl" alt="Source cubemap" class="object-contain" />
-        </div>
+        <div
+          class="bg-white dark:bg-gray-900 rounded-lg w-full flex justify-center min-h-52"
+          :style="{
+            backgroundImage: `url(${sourceImageUrl})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+          }"
+        ></div>
       </DefaultCard>
 
       <DefaultCard class="@lg:order-0 order-4">

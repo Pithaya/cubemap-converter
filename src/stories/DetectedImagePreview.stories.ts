@@ -43,7 +43,7 @@ export const DarkMode: Story = {
   },
   decorators: [
     () => ({
-      template: '<div class="dark"><story /></div>',
+      template: '<div class="dark" style="background-color: #101828"><story /></div>',
     }),
   ],
 };
