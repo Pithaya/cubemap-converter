@@ -17,7 +17,7 @@ function downloadImage(dataUrl: string, format: string) {
 </script>
 
 <template>
-  <DefaultCard class="transition-all duration-200 hover:shadow-xl">
+  <DefaultCard class="h-fit transition-all duration-200 hover:shadow-xl">
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
         {{ FORMAT_LABELS[cubemap.format] }}

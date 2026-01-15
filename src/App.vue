@@ -123,7 +123,7 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 md:p-4 relative">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-12 lg:px-44 relative">
     <ThemeToggleButton />
 
     <header class="text-center mb-6">
@@ -135,7 +135,7 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
       </p>
     </header>
 
-    <main class="max-w-7xl mx-auto flex flex-col gap-8">
+    <main class="mx-auto flex flex-col gap-8">
       <FileUpload @file-selected="handleFileSelected" />
 
       <ProcessingCard v-if="isProcessing" />
@@ -145,7 +145,6 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
       <div class="flex w-full justify-center">
         <DetectedImagePreview
           v-if="sourceImageUrl && !isProcessing && facesUrls"
-          class="max-w-[80%]"
           :source-image-url="sourceImageUrl"
           :faces-urls="facesUrls"
         />
@@ -174,7 +173,7 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="masonry-grid">
           <CubemapPreview
             v-for="cubemap in convertedCubemaps"
             :key="cubemap.format"
@@ -196,3 +195,29 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
     </Teleport>
   </div>
 </template>
+
+<style scoped>
+.masonry-grid {
+  column-count: 1;
+  column-gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .masonry-grid {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry-grid {
+    column-count: 3;
+  }
+}
+
+.masonry-grid > * {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+  display: inline-block;
+  width: 100%;
+}
+</style>
