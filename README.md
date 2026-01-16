@@ -4,7 +4,7 @@ An online tool to convert cubemaps between different formats, or create your own
 
 ## Supported formats
 
-Upon uploading an image, the current format will be automatically detected.  
+Upon uploading an image, its format will be automatically detected.  
 The example cubemap images are taken from the [Godot documentation](https://docs.godotengine.org/en/stable/classes/class_cubemap.html).
 
 | Format           |                               Example                               |
@@ -22,7 +22,9 @@ You can use this image to test the tool (from [Learn OpenGL](https://learnopengl
 
 ## Custom format
 
-Use the drag and drop editor to organize the faces.
+Use the drag and drop editor to organize the faces in a custom layout.
+
+![Custom cubemap editor modal](./docs/img/editor.png)
 
 ## Project Setup
 
@@ -44,4 +46,16 @@ npm run dev
 
 ```sh
 npm run build
+```
+
+### Run storybook
+
+```sh
+npm run storybook
+```
+
+### Run tests
+
+```sh
+npm run test
 ```
