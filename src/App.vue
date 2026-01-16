@@ -14,6 +14,7 @@ import {
 } from './types/cubemap';
 import { downloadDataUrl, loadImage } from './utils/image';
 import ThemeToggleButton from './components/ThemeToggleButton.vue';
+import GithubButton from './components/GithubButton.vue';
 import DetectedInfoTag from './components/DetectedInfoTag.vue';
 import ProcessingCard from './components/ProcessingCard.vue';
 import ErrorCard from './components/ErrorCard.vue';
@@ -125,6 +126,7 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-12 lg:px-44 relative">
     <ThemeToggleButton />
+    <GithubButton />
 
     <header class="text-center mb-6">
       <h1 class="text-4xl md:text-5xl font-bold mb-2 text-gray-900 dark:text-white">
