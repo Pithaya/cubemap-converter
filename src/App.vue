@@ -128,7 +128,7 @@ function handleGenerate(customCubemapData: Record<keyof CubeFaces, CustomFaceDat
 
     <header class="text-center mb-6">
       <h1 class="text-4xl md:text-5xl font-bold mb-2 text-gray-900 dark:text-white">
-        🗺️ Cubemap Format Converter
+        Cubemap format converter
       </h1>
       <p class="text-lg text-gray-600 dark:text-gray-300">
         Convert your cubemaps between different formats

@@ -262,19 +262,8 @@ export function convertToCustomFormat(
   );
   const minY = Math.min(...Object.values(customCubemapData).map((f) => f.position.y * faceSize));
 
-  console.log('Min x', minX, ' (', minX / faceSize, 'faces )');
-  console.log('Min y', minY, ' (', minY / faceSize, 'faces )');
-  console.log('Max x', maxX, ' (', maxX / faceSize, 'faces )');
-  console.log('Max y', maxY, ' (', maxY / faceSize, 'faces )');
-
   const width = maxX - minX;
   const height = maxY - minY;
-
-  //const width = faceSize * 6;
-  //const height = faceSize * 6;
-
-  console.log('Width:', width, ' (', width / faceSize, 'faces )');
-  console.log('Height:', height, ' (', height / faceSize, 'faces )');
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
