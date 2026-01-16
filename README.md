@@ -1,4 +1,4 @@
-# 🗺️ Cubemap format converter
+# <img src="./public/favicon.svg" width="20px" alt="website logo" /> Cubemap format converter
 
 An online tool to convert cubemaps between different formats, or create your own.
 
